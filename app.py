@@ -17,6 +17,8 @@ def get_file(file_id, file_name, chat_id):
     req = requests.post(url, data=data)
     r = req.json()
     file_path = r["result"]["file_path"]
+    if not os.path.exists('downloads/' + str(chat_id)):
+        os.mkdir('downloads/' + str(chat_id))
     download_file(file_path, file_name, str(chat_id))
 
 def download_file(file_path, file_name, chat_id):
@@ -52,6 +54,8 @@ def send_document(chat_id, document):
 
 def button1(chat_id):
     chat_id = str(chat_id)
+    if not os.path.exists('downloads/' + str(chat_id)):
+        os.mkdir('downloads/' + str(chat_id))
     list_of_files = os.listdir('downloads/' + chat_id)
     list_of_filenames = []
     for file in list_of_files:
@@ -105,19 +109,24 @@ async def receive_update():
         return {"ok": True}
     
     chat_id = r['message']['chat']['id']
-    text = r['message']['text']
-    if text == "/start":
-        button1(chat_id)
-        #print(r)
-        return {"ok": True}
+    
+    
 
-    if "FILE:" in text: 
-        
-        filename = text.replace("FILE:", '')
-        print(filename)
-        send_document(chat_id, filename)
-        return {"ok": True}
-        
+    try:
+        text = r['message']['text']
+        if "FILE:" in text: 
+            
+            filename = text.replace("FILE:", '')
+            print(filename)
+            send_document(chat_id, filename)
+            return {"ok": True}
+        if text == "/start":
+            button1(chat_id)
+            #print(r)
+            return {"ok": True}
+    except:
+        print('zhal')  
+        return {"ok": True} 
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
